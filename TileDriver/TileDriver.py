@@ -8,6 +8,8 @@ from random import randint
 def main():
    width = int(input("Enter Grid Width: "))
    shuffleTiles(width)
+   while ((var = input("")) != 'Q'):
+
 
 def shuffleTiles(width):
    grid = [[0 for j in range(width)] for i in range(width)]
@@ -24,8 +26,8 @@ def shuffleTiles(width):
          del vals[randInt]
          grid[i][j] = val
    
-   while(getManhattanDist(grid) < (width * width * width)):
-      dir = randint(0,4)
+   while(getManhattanDist(grid) < (width * width)):
+      dir = randint(0,3)
       if isValidMove(grid, empx, empy, dir):
          move = makeMove(grid, empx, empy, dir)
          grid = move[0]
@@ -40,13 +42,13 @@ def makeMove(grid, x, y, dir):
    adjX = 0
    adjY = 0
    if dir == 0:
-      adjX = -1
-   if dir == 1:
       adjX = 1
+   if dir == 1:
+      adjX = -1
    if dir == 2:
-      adjY = -1
-   if dir == 3:
       adjY = 1
+   if dir == 3:
+      adjY = -1
    grid[x][y] = grid[x + adjX][y + adjY]
    grid[x + adjX][y + adjY] = 0
    return (grid, x + adjX, y + adjY)
@@ -66,10 +68,10 @@ def copy(grid):
    return grid
 
 def isValidMove(grid, x, y, dir):
-   if ((dir == 0 and onGrid(grid, x - 1, y)) 
-    or (dir == 1 and onGrid(grid, x + 1, y)) 
-    or (dir == 2 and onGrid(grid, x, y - 1)) 
-    or (dir == 3 and onGrid(grid, x, y + 1))):
+   if ((dir == 0 and onGrid(grid, x + 1, y)) 
+    or (dir == 1 and onGrid(grid, x - 1, y)) 
+    or (dir == 2 and onGrid(grid, x, y + 1)) 
+    or (dir == 3 and onGrid(grid, x, y - 1))):
       return True
    return False
 
