@@ -23,11 +23,33 @@ def shuffleTiles(width):
             empy = j
          del vals[randInt]
          grid[i][j] = val
+   
+   while(getManhattanDist(grid) < (width * width * width)):
+      dir = randint(0,4)
+      if isValidMove(grid, empx, empy, dir):
+         move = makeMove(grid, empx, empy, dir)
+         grid = move[0]
+         empx = move[1]
+         empy = move[2]
+
    #check if the grid is valid
-   isValidMove(grid, empx, empy, dir)
-   dist = getManhattanDist(grid)
    printGrid(grid)
    return grid
+
+def makeMove(grid, x, y, dir):
+   adjX = 0
+   adjY = 0
+   if dir == 0:
+      adjX = -1
+   if dir == 1:
+      adjX = 1
+   if dir == 2:
+      adjY = -1
+   if dir == 3:
+      adjY = 1
+   grid[x][y] = grid[x + adjX][y + adjY]
+   grid[x + adjX][y + adjY] = 0
+   return (grid, x + adjX, y + adjY)
 
 def getManhattanDist(grid):
    width = len(grid)
@@ -44,12 +66,19 @@ def copy(grid):
    return grid
 
 def isValidMove(grid, x, y, dir):
-   if ((dir == 0 and grid[x - 1, y] is not None) 
-    or (dir == 1 and grid[x + 1, y] is not None) 
-    or (dir == 2 and grid[x, y - 1] is not None) 
-    or (dir == 3 and grid[x, y + 1] is not None)):
+   if ((dir == 0 and onGrid(grid, x - 1, y)) 
+    or (dir == 1 and onGrid(grid, x + 1, y)) 
+    or (dir == 2 and onGrid(grid, x, y - 1)) 
+    or (dir == 3 and onGrid(grid, x, y + 1))):
       return True
    return False
+
+def onGrid(grid, x, y):
+   try:
+      grid[x][y]
+   except (IndexError, ValueError):
+      return False
+   return True
 
 def printGrid(grid):
    for list in grid:
