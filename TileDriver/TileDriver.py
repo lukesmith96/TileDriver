@@ -7,9 +7,44 @@ from random import randint
 
 def main():
    width = int(input("Enter Grid Width: "))
-   shuffleTiles(width)
-   while ((var = input("")) != 'Q'):
+   shuffledTiles = shuffleTiles(width)
+   grid = shuffledTiles[0]
+   x = shuffledTiles[1]
+   y = shuffledTiles[2]
 
+   complete = [[0 for j in range(width)] for i in range(width)]
+   index = 0
+   for i in range(0, width):
+      for j in range(0, width):
+         complete[i][j] = index
+         index += 1
+
+   while True:
+      command = input("Next Move: ")
+      if (command == 'q' or command == 'Q'):
+         break;
+      choices = "kjhl"
+      try:
+         move = choices.index(command.lower())
+      except (ValueError):
+         print("Incorrect Selection")
+         continue
+      if isValidMove(grid, x, y, move):
+         newGrid = makeMove(grid, x, y, move)
+         grid = newGrid[0]
+         x = newGrid[1]
+         y = newGrid[2]
+      printGrid(grid)
+      if (finished(grid, complete)):
+         print("You Won!")
+         break;
+
+def finished(grid, complete):
+   for i in range(0, len(grid)):
+      for j in range(0, len(grid)):
+         if grid[i][j] != complete[i][j]:
+            return False
+   return True
 
 def shuffleTiles(width):
    grid = [[0 for j in range(width)] for i in range(width)]
@@ -26,7 +61,7 @@ def shuffleTiles(width):
          del vals[randInt]
          grid[i][j] = val
    
-   while(getManhattanDist(grid) < (width * width)):
+   while(getManhattanDist(grid) > (width * width)):
       dir = randint(0,3)
       if isValidMove(grid, empx, empy, dir):
          move = makeMove(grid, empx, empy, dir)
@@ -36,7 +71,7 @@ def shuffleTiles(width):
 
    #check if the grid is valid
    printGrid(grid)
-   return grid
+   return (grid, empx, empy)
 
 def makeMove(grid, x, y, dir):
    adjX = 0
@@ -77,6 +112,8 @@ def isValidMove(grid, x, y, dir):
 
 def onGrid(grid, x, y):
    try:
+      if x < 0 or y < 0:
+         raise IndexError
       grid[x][y]
    except (IndexError, ValueError):
       return False
