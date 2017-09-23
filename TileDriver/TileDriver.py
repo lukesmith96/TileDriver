@@ -4,15 +4,29 @@ from random import randint
 # Dir [0:UP 1:DOWN 2:LEFT 3:RIGHT]
 # 
 #
+class State:
+   distance = 0
+   cost = path + distance
+   def __init__(self, tiles, path):
+      self.tiles = tiles
+      self.path = path
+      self.distance = getManhattanDist(tiles)
+      self.cost = len(path) + self.distance
+   def __eq__(self, other):
+      finished(self, other)
+   def __repr__(self):
+      print(self)
+
 
 def main():
    width = int(input("Enter Grid Width: "))
+
+   complete = [[0 for j in range(width)] for i in range(width)]
    shuffledTiles = shuffleTiles(width)
    grid = shuffledTiles[0]
    x = shuffledTiles[1]
    y = shuffledTiles[2]
 
-   complete = [[0 for j in range(width)] for i in range(width)]
    index = 0
    for i in range(0, width):
       for j in range(0, width):
@@ -39,29 +53,25 @@ def main():
          print("You Won!")
          break;
 
-def finished(grid, complete):
+def eq(grid, comp):
    for i in range(0, len(grid)):
       for j in range(0, len(grid)):
-         if grid[i][j] != complete[i][j]:
+         if grid[i][j] != comp[i][j]:
             return False
    return True
 
 def shuffleTiles(width):
    grid = [[0 for j in range(width)] for i in range(width)]
-   vals = list(range(0, (width * width)))
    empx = 0
    empy = 0
+   
+   index = 0
    for i in range(0, width):
       for j in range(0, width):
-         randInt = randint(0, len(vals) - 1)
-         val = vals[randInt]
-         if (val == 0):
-            empx = i
-            empy = j
-         del vals[randInt]
-         grid[i][j] = val
-   
-   while(getManhattanDist(grid) > (width * width)):
+         grid[i][j] = index
+         index += 1
+
+   while(getManhattanDist(grid) < (width * width)):
       dir = randint(0,3)
       if isValidMove(grid, empx, empy, dir):
          move = makeMove(grid, empx, empy, dir)
@@ -94,9 +104,11 @@ def getManhattanDist(grid):
    for i in range(0, len(grid)):
       for j in range(0, len(grid)):
          var = grid[i][j]
+         if var == 0: 
+            continue
          finX = var % width
          finY = int(var/width)
-         dist += abs(i - finX) + abs(j - finY)
+         dist += abs(i - finY) + abs(j - finX)
    return dist
 
 def copy(grid):
