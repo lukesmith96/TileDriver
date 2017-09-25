@@ -38,7 +38,6 @@ def main():
          final = solve_puzzle(start)
          print(final.path)
          print("Success")
-         break;
       choices = "kjhl"
       if (command == "n" or command == "N"):
          solve_puzzle(grid)
@@ -65,7 +64,7 @@ def solve_puzzle(startState):
       minCost = toVisit[0]
       index = 0
       for i in range(len(toVisit)):
-         if (toVisit[i].cost < minCost.cost and isExplored(visited, toVisit[i])):
+         if (toVisit[i].cost < minCost.cost and not isExplored(visited, toVisit[i])):
             minCost = toVisit[i]
             index = i
       # visit min cost option
@@ -83,7 +82,7 @@ def isExplored(list, comp):
    return False
 def createNewStates(state):
    list = []
-   choices = "JKHL"
+   choices = "KJHL"
    for char in choices:
       index = choices.index(char)
       if (not isOpposingMove(state.path[-1:], char) 
