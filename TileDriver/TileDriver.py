@@ -12,8 +12,6 @@ class State:
       self.cost = len(path) + self.distance
       self.x = x
       self.y = y
-   def __eq__(self, other):
-      finished(self, other)
    def __repr__(self):
       print(self)
 
@@ -37,8 +35,8 @@ def main():
       command = input("Next Move: ")
       if (command == 'q' or command == 'Q'):
          start = State(grid, "", x, y)
-         list = createNewStates(start)
-         second = createNewStates(list[0])
+         final = solve_puzzle(start)
+         print(final.path)
          print("Success")
          break;
       choices = "kjhl"
@@ -59,8 +57,30 @@ def main():
          print("You Won!")
          break;
 
-def solve_puzzle(startGrid):
-   return None
+def solve_puzzle(startState):
+   visited = []
+   toVisit = createNewStates(startState)
+   final = None
+   while (final is None):
+      minCost = toVisit[0]
+      index = 0
+      for i in range(len(toVisit)):
+         if (toVisit[i].cost < minCost.cost and isExplored(visited, toVisit[i])):
+            minCost = toVisit[i]
+            index = i
+      # visit min cost option
+      del toVisit[index]
+      toVisit = toVisit + createNewStates(minCost)
+      visited.append(minCost)
+      if (minCost.distance == 0):
+         final = minCost
+   return final
+
+def isExplored(list, comp):
+   for state in list:
+      if(eq(state.tiles, comp.tiles)):
+         return True
+   return False
 def createNewStates(state):
    list = []
    choices = "JKHL"
