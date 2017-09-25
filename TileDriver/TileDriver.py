@@ -5,13 +5,13 @@ from random import randint
 # 
 #
 class State:
-   distance = 0
-   cost = path + distance
-   def __init__(self, tiles, path):
+   def __init__(self, tiles, path, x, y):
       self.tiles = tiles
       self.path = path
       self.distance = getManhattanDist(tiles)
       self.cost = len(path) + self.distance
+      self.x = x
+      self.y = y
    def __eq__(self, other):
       finished(self, other)
    def __repr__(self):
@@ -36,8 +36,14 @@ def main():
    while True:
       command = input("Next Move: ")
       if (command == 'q' or command == 'Q'):
+         start = State(grid, "", x, y)
+         list = createNewStates(start)
+         second = createNewStates(list[0])
+         print("Success")
          break;
       choices = "kjhl"
+      if (command == "n" or command == "N"):
+         solve_puzzle(grid)
       try:
          move = choices.index(command.lower())
       except (ValueError):
@@ -49,9 +55,32 @@ def main():
          x = newGrid[1]
          y = newGrid[2]
       printGrid(grid)
-      if (finished(grid, complete)):
+      if (eq(grid, complete)):
          print("You Won!")
          break;
+
+def solve_puzzle(startGrid):
+   return None
+def createNewStates(state):
+   list = []
+   choices = "JKHL"
+   for char in choices:
+      index = choices.index(char)
+      if (not isOpposingMove(state.path[-1:], char) 
+          and isValidMove(state.tiles, state.x, state.y, index)):
+          move = makeMove(copy(state.tiles), state.x, state.y, index)
+          temp = State(move[0], state.path + char, move[1], move[2])
+          list.append(temp)
+   return list
+
+def isOpposingMove(prev, next):
+   if (prev == ""):
+      return False
+   if (prev == "H" and next == "L") or (prev == "L" and next == "H"):
+      return True
+   if (prev == "J" and next == "K") or (prev == "K" and next == "J"):
+      return True
+   return False;
 
 def eq(grid, comp):
    for i in range(0, len(grid)):
@@ -112,7 +141,12 @@ def getManhattanDist(grid):
    return dist
 
 def copy(grid):
-   return grid
+   width = len(grid)
+   newGrid = [[0 for j in range(width)] for i in range(width)]
+   for i in range(0, width):
+      for j in range(0, width):
+         newGrid[i][j] = grid[i][j]
+   return newGrid
 
 def isValidMove(grid, x, y, dir):
    if ((dir == 0 and onGrid(grid, x + 1, y)) 
