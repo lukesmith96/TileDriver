@@ -2,9 +2,17 @@ from random import randint
 
 #
 # Dir [0:UP 1:DOWN 2:LEFT 3:RIGHT]
-# 
+# @author: Luke Smith
 #
+
+# State class holds an instance of the game
+# with a specific tile state, this is used when
+# trying to discover the most efficient path
 class State:
+   # @param
+   # tiles : matrix of integers representing the board
+   # path : String holding all previous moves
+   # x,y : integers holding the position of the empty slot (0) on the board
    def __init__(self, tiles, path, x, y):
       self.tiles = tiles
       self.path = path
@@ -12,12 +20,9 @@ class State:
       self.cost = len(path) + self.distance
       self.x = x
       self.y = y
-   def __repr__(self):
-      print(self)
-
 
 def main():
-   width = int(input("Enter Grid Width: "))
+   width = int(input("Width: "))
 
    complete = [[0 for j in range(width)] for i in range(width)]
    shuffledTiles = shuffleTiles(width)
@@ -32,30 +37,34 @@ def main():
          index += 1
 
    while True:
-      command = input("Next Move: ")
-      if (command == 'q' or command == 'Q'):
+      command = input("Move [H|J|K|L] | [S]olve | [Q]uit: ")
+      choices = "kjhl"
+      if (command == 's' or command == 'S'):
          start = State(grid, "", x, y)
          final = solve_puzzle(start)
-         print(final.path)
-         print("Success")
-      choices = "kjhl"
-      if (command == "n" or command == "N"):
-         solve_puzzle(grid)
-      try:
-         move = choices.index(command.lower())
-      except (ValueError):
-         print("Incorrect Selection")
-         continue
-      if isValidMove(grid, x, y, move):
-         newGrid = makeMove(grid, x, y, move)
-         grid = newGrid[0]
-         x = newGrid[1]
-         y = newGrid[2]
-      printGrid(grid)
-      if (eq(grid, complete)):
-         print("You Won!")
+         print("Solution: ", final.path)
+      elif command == 'q' or command == 'Q':
          break;
+      else:
+         try:
+            move = choices.index(command.lower())
+         except (ValueError):
+            print("Invalid Move")
+            continue
+         if isValidMove(grid, x, y, move):
+            newGrid = makeMove(grid, x, y, move)
+            grid = newGrid[0]
+            x = newGrid[1]
+            y = newGrid[2]
+         else:
+            print("Invalid Move")
+         printGrid(grid)
+         if (eq(grid, complete)):
+            print("Puzzle Complete!")
+            break;
 
+# Discovers the most efficient move path
+# given a inputted start state. Using an A* algorithm
 def solve_puzzle(startState):
    visited = []
    toVisit = createNewStates(startState)
@@ -75,11 +84,16 @@ def solve_puzzle(startState):
          final = minCost
    return final
 
+# checks if this state is contained in the explored list
+# if so don't add it because we know it won't be as efficient
 def isExplored(list, comp):
    for state in list:
       if(eq(state.tiles, comp.tiles)):
          return True
    return False
+
+# Iterates through all possible moves available in a state
+# and returns a list of new states with those move made.
 def createNewStates(state):
    list = []
    choices = "KJHL"
@@ -92,6 +106,10 @@ def createNewStates(state):
           list.append(temp)
    return list
 
+# No reason to add the opposing move to what was
+# just made to our list of possible states. Creates
+# a infinite loop, this method returns if the move is
+# opposing. Ie. prev = left  and next = right return to same state
 def isOpposingMove(prev, next):
    if (prev == ""):
       return False
@@ -101,6 +119,7 @@ def isOpposingMove(prev, next):
       return True
    return False;
 
+# Check if two board params are equal to eachother
 def eq(grid, comp):
    for i in range(0, len(grid)):
       for j in range(0, len(grid)):
@@ -108,6 +127,9 @@ def eq(grid, comp):
             return False
    return True
 
+# Shuffles the tiles by starting with a 
+# finished grid this gaurentees the solvability
+# of the problem
 def shuffleTiles(width):
    grid = [[0 for j in range(width)] for i in range(width)]
    empx = 0
@@ -131,6 +153,10 @@ def shuffleTiles(width):
    printGrid(grid)
    return (grid, empx, empy)
 
+# Makes a move on the tiles
+# return the new tile positions.
+# Keeps track of the empty tile position to make this
+# method and isValidMove efficency of O(1)
 def makeMove(grid, x, y, dir):
    adjX = 0
    adjY = 0
@@ -146,6 +172,9 @@ def makeMove(grid, x, y, dir):
    grid[x + adjX][y + adjY] = 0
    return (grid, x + adjX, y + adjY)
 
+# Returns the Manhattan Distance of the grid
+# Used to gaurentee the difficulty of a grid in
+# shuffling and in cost analysis.
 def getManhattanDist(grid):
    width = len(grid)
    dist = 0;
@@ -159,6 +188,8 @@ def getManhattanDist(grid):
          dist += abs(i - finY) + abs(j - finX)
    return dist
 
+# Preforms deep copy on the tiles in order to
+# diferentiate states
 def copy(grid):
    width = len(grid)
    newGrid = [[0 for j in range(width)] for i in range(width)]
@@ -167,6 +198,8 @@ def copy(grid):
          newGrid[i][j] = grid[i][j]
    return newGrid
 
+# Checks if the proposed move is valid. 
+# See makeMove() for more details.
 def isValidMove(grid, x, y, dir):
    if ((dir == 0 and onGrid(grid, x + 1, y)) 
     or (dir == 1 and onGrid(grid, x - 1, y)) 
@@ -175,6 +208,7 @@ def isValidMove(grid, x, y, dir):
       return True
    return False
 
+# Checks to see if the coordinates exist on the grid
 def onGrid(grid, x, y):
    try:
       if x < 0 or y < 0:
@@ -184,10 +218,14 @@ def onGrid(grid, x, y):
       return False
    return True
 
+# Prints the grid in param
 def printGrid(grid):
    for list in grid:
       for number in list:
-         print(number, ",", end="")
+         if number == 0:
+            print("      ", end="")
+            continue
+         print("[", number, "] ", end="")
       print("\n")
 
 if __name__ == '__main__':
