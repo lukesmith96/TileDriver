@@ -29,4 +29,6 @@ indicating that it is the final state and an optimal path has been found.
 For movement, we will use the same navigation keys as in Vim, specifically:
 Left: H, Down: J, Up: K, Right: L
 
-Finding the quickest path to solving the puzzle is found using the key command: q
+Finding the quickest path to solving the puzzle is found using the key command: S
+
+Quit the game with: Q
